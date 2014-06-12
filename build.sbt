@@ -1,11 +1,10 @@
+import play.PlayScala
+
 name := "mysearch"
 
 version := "1.0-SNAPSHOT"
 
-libraryDependencies ++= Seq(
-  jdbc,
-  anorm,
-  cache
-)     
+scalaVersion := "2.11.1"
 
-play.Project.playScalaSettings
+lazy val root = (project in file(".")).enablePlugins(PlayScala)
+
