@@ -1,7 +1,11 @@
 package games
 
-case class FifteenStrikes(player1: Player, player2: Player, var sticks: Int = 15) {
-  if (player1.id == player2.id) throw InvalidRequestException("Player should have distinct ids")
+case class FifteenStrikes(player1: Player, player2: Player) {
+  if (player1.id == player2.id)
+    throw InvalidRequestException("Player should have distinct ids")
+
+  var sticks: Int = 15
+  var state: GameState = NEW
 
   private var lastPlayer: Option[Player] = None
 
@@ -19,9 +23,24 @@ case class FifteenStrikes(player1: Player, player2: Player, var sticks: Int = 15
 
     lastPlayer = Some(player)
     sticks -= howMany
+    state = if (sticks > 1) INPROGRESS else FINISHED
   }
+
+  def winner(): Player =
+    if (state == FINISHED)
+      lastPlayer.get
+    else
+      throw InvalidRequestException("")
 }
 
 case class Player(id: Int)
 
 case class InvalidRequestException(message: String) extends Exception
+
+sealed trait GameState
+
+case object NEW extends GameState
+
+case object INPROGRESS extends GameState
+
+case object FINISHED extends GameState
