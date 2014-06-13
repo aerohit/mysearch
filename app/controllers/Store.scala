@@ -14,13 +14,5 @@ object Store extends Controller {
     torrentRepository += torrent
     Ok("Added " + torrent)
   }
-
-  def getValue(key: String) = Action {
-    val foundTorrents = torrentRepository.filter(_.category == key).toList
-    implicit val torrentFmt = Json.format[Torrent]
-
-//    Ok(Json.obj("found" -> foundTorrents))
-    Ok(Json.toJson(foundTorrents))
-  }
 }
 

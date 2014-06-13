@@ -7,7 +7,5 @@ GET         /                    controllers.Application.index
 
 POST        /store               controllers.Store.addValue(value: String)
 
-GET         /store               controllers.Store.getValue(key: String)
-
 # Map static resources from the /public folder to the /assets URL path
 GET         /assets/*file        controllers.Assets.at(path="/public", file)
