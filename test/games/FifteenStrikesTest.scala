@@ -1,6 +1,11 @@
 package games
 
 import org.specs2.mutable.Specification
+import games.InvalidMoveException._
+import games.InvalidMoveException.PlayerIdsNotDistinct
+import games.InvalidMoveException.PlayerMovedConsecutively
+import games.InvalidMoveException.InvalidNumberOfStrikes
+import games.InvalidMoveException.NotEnoughSticks
 
 class FifteenStrikesTest extends Specification {
   "When the game is started, it" should {
@@ -12,7 +17,7 @@ class FifteenStrikesTest extends Specification {
     }
 
     "have distinct player ids" in {
-      FifteenStrikes(Player(15), Player(15)) must throwAn(InvalidRequestException("Player should have distinct ids"))
+      FifteenStrikes(Player(15), Player(15)) must throwA(PlayerIdsNotDistinct(15, 15))
     }
 
     "have 15 sticks" in {
@@ -24,13 +29,13 @@ class FifteenStrikesTest extends Specification {
   "When a player makes a move, she" should {
     "not be allowed to strike less than 1 stick" in {
       val game = FifteenStrikes(p1, p2)
-      game.strike(p1, 0) must throwAn(InvalidRequestException("Must strike either 1, 2 or 3"))
+      game.strike(p1, 0) must throwA(InvalidNumberOfStrikes(0))
       game.sticks mustEqual 15
     }
 
     "not be allowed to strike more than 3 sticks" in {
       val game = FifteenStrikes(p1, p2)
-      game.strike(p1, 4) must throwAn(InvalidRequestException("Must strike either 1, 2 or 3"))
+      game.strike(p1, 4) must throwA(InvalidNumberOfStrikes(4))
       game.sticks mustEqual 15
     }
 
@@ -48,11 +53,11 @@ class FifteenStrikesTest extends Specification {
       val game = FifteenStrikes(p1, p2)
 
       game.strike(p1, 1)
-      game.strike(p1, 1) must throwAn(InvalidRequestException("A player cant move consecutively"))
+      game.strike(p1, 1) must throwA(PlayerMovedConsecutively(p1))
       game.sticks mustEqual 14
 
       game.strike(p2, 1)
-      game.strike(p2, 1) must throwAn(InvalidRequestException("A player cant move consecutively"))
+      game.strike(p2, 1) must throwA(PlayerMovedConsecutively(p2))
       game.sticks mustEqual 13
     }
 
@@ -63,7 +68,7 @@ class FifteenStrikesTest extends Specification {
       game.strike(p1, 3)
       game.strike(p2, 2)
       game.strike(p1, 3)
-      game.strike(p2, 2) must throwAn(InvalidRequestException("Cant remove all the sticks"))
+      game.strike(p2, 2) must throwA(NotEnoughSticks(2))
     }
   }
 
@@ -94,9 +99,9 @@ class FifteenStrikesTest extends Specification {
   "The winner of the game" should {
     "be undecided if the game hasn't finished" in {
       val game = FifteenStrikes(p1, p2)
-      game.winner must throwAn(InvalidRequestException(""))
+      game.winner must throwA(NoWinnerYet)
       game.strike(p1, 3)
-      game.winner must throwAn(InvalidRequestException(""))
+      game.winner must throwA(NoWinnerYet)
     }
 
     "be the last player to leave 1 stick on the table" in {

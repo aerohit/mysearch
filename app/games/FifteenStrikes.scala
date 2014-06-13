@@ -1,8 +1,10 @@
 package games
 
+import games.InvalidMoveException._
+
 case class FifteenStrikes(player1: Player, player2: Player) {
   if (player1.id == player2.id)
-    throw InvalidRequestException("Player should have distinct ids")
+    throw PlayerIdsNotDistinct(player1.id, player2.id)
 
   var sticks: Int = 15
   var state: GameState = NEW
@@ -11,15 +13,15 @@ case class FifteenStrikes(player1: Player, player2: Player) {
 
   def strike(player: Player, howMany: Int): Unit = {
     if (howMany < 1 || howMany > 3)
-      throw InvalidRequestException("Must strike either 1, 2 or 3")
+      throw InvalidNumberOfStrikes(howMany)
 
     lastPlayer.map { lp =>
       if (lp.id == player.id)
-        throw InvalidRequestException("A player cant move consecutively")
+        throw PlayerMovedConsecutively(player)
     }
 
     if (sticks - howMany < 1)
-      throw InvalidRequestException("Cant remove all the sticks")
+      throw NotEnoughSticks(sticks)
 
     lastPlayer = Some(player)
     sticks -= howMany
@@ -30,12 +32,26 @@ case class FifteenStrikes(player1: Player, player2: Player) {
     if (state == FINISHED)
       lastPlayer.get
     else
-      throw InvalidRequestException("")
+      throw NoWinnerYet
 }
 
 case class Player(id: Int)
 
-case class InvalidRequestException(message: String) extends Exception
+trait InvalidMoveException extends Exception
+
+object InvalidMoveException {
+
+  case class PlayerIdsNotDistinct(id1: Int, id2: Int) extends InvalidMoveException
+
+  case class InvalidNumberOfStrikes(howMany: Int) extends InvalidMoveException
+
+  case class PlayerMovedConsecutively(player: Player) extends InvalidMoveException
+
+  case class NotEnoughSticks(remaining: Int) extends InvalidMoveException
+
+  case object NoWinnerYet extends InvalidMoveException
+
+}
 
 sealed trait GameState
 
