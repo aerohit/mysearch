@@ -22,19 +22,20 @@ class FifteenStrikesTest extends Specification {
   }
 
   "When a player makes a move, she" should {
-    val game = FifteenStrikes(p1, p2)
-
     "not be allowed to strike less than 1 stick" in {
+      val game = FifteenStrikes(p1, p2)
       game.strike(p1, 0) must throwAn(InvalidRequestException("Must strike either 1, 2 or 3"))
       game.sticks mustEqual 15
     }
 
     "not be allowed to strike more than 3 sticks" in {
+      val game = FifteenStrikes(p1, p2)
       game.strike(p1, 4) must throwAn(InvalidRequestException("Must strike either 1, 2 or 3"))
       game.sticks mustEqual 15
     }
 
     "be able to strike 1, 2 or 3 stick" in {
+      val game = FifteenStrikes(p1, p2)
       (1 to 3).forall { howMany =>
         val g = FifteenStrikes(p1, p2)
         g.strike(p1, howMany)
@@ -54,6 +55,16 @@ class FifteenStrikesTest extends Specification {
       game.strike(p2, 1)
       game.strike(p2, 1) must throwAn(InvalidRequestException("A player cant move consecutively"))
       game.sticks mustEqual 13
+    }
+
+    "not be allowed to remove all the sticks" in {
+      val game = FifteenStrikes(p1, p2)
+      game.strike(p1, 3)
+      game.strike(p2, 2)
+      game.strike(p1, 3)
+      game.strike(p2, 2)
+      game.strike(p1, 3)
+      game.strike(p2, 2) must throwAn(InvalidRequestException("Cant remove all the sticks"))
     }
   }
 
