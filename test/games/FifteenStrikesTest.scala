@@ -2,10 +2,6 @@ package games
 
 import org.specs2.mutable.Specification
 import games.InvalidMoveException._
-import games.InvalidMoveException.PlayerIdsNotDistinct
-import games.InvalidMoveException.PlayerMovedConsecutively
-import games.InvalidMoveException.InvalidNumberOfStrikes
-import games.InvalidMoveException.NotEnoughSticks
 
 class FifteenStrikesTest extends Specification {
   "When the game is started, it" should {
@@ -17,12 +13,12 @@ class FifteenStrikesTest extends Specification {
     }
 
     "have distinct player ids" in {
-      FifteenStrikes(Player(15), Player(15)) must throwA(PlayerIdsNotDistinct(15, 15))
+      FifteenStrikes(Player(15), Player(15)) must throwA(PlayersNotDistinct(15, 15))
     }
 
     "have 15 sticks" in {
       val game = FifteenStrikes(Player(15), Player(17))
-      game.sticks mustEqual 15
+      game.getSticks mustEqual 15
     }
   }
 
@@ -30,20 +26,20 @@ class FifteenStrikesTest extends Specification {
     "not be allowed to strike less than 1 stick" in {
       val game = FifteenStrikes(p1, p2)
       game.strike(p1, 0) must throwA(InvalidNumberOfStrikes(0))
-      game.sticks mustEqual 15
+      game.getSticks mustEqual 15
     }
 
     "not be allowed to strike more than 3 sticks" in {
       val game = FifteenStrikes(p1, p2)
       game.strike(p1, 4) must throwA(InvalidNumberOfStrikes(4))
-      game.sticks mustEqual 15
+      game.getSticks mustEqual 15
     }
 
     "be able to strike 1, 2 or 3 stick" in {
       (1 to 3).forall { howMany =>
         val g = FifteenStrikes(p1, p2)
         g.strike(p1, howMany)
-        g.sticks == (15 - howMany)
+        g.getSticks == (15 - howMany)
       } must beTrue
     }
   }
@@ -54,11 +50,11 @@ class FifteenStrikesTest extends Specification {
 
       game.strike(p1, 1)
       game.strike(p1, 1) must throwA(PlayerMovedConsecutively(p1))
-      game.sticks mustEqual 14
+      game.getSticks mustEqual 14
 
       game.strike(p2, 1)
       game.strike(p2, 1) must throwA(PlayerMovedConsecutively(p2))
-      game.sticks mustEqual 13
+      game.getSticks mustEqual 13
     }
 
     "not be allowed to remove all the sticks" in {
@@ -75,13 +71,13 @@ class FifteenStrikesTest extends Specification {
   "The state of the game" should {
     s"be $NEW when started" in {
       val game = FifteenStrikes(p1, p2)
-      game.state mustEqual NEW
+      game.getState mustEqual NEW
     }
 
     s"be $INPROGRESS when a player has struck" in {
       val game = FifteenStrikes(p1, p2)
       game.strike(p1, 3)
-      game.state mustEqual INPROGRESS
+      game.getState mustEqual INPROGRESS
     }
 
     s"be $FINISHED when the game closes" in {
@@ -92,7 +88,7 @@ class FifteenStrikesTest extends Specification {
       game.strike(p2, 2)
       game.strike(p1, 3)
       game.strike(p2, 1)
-      game.state mustEqual FINISHED
+      game.getState mustEqual FINISHED
     }
   }
 

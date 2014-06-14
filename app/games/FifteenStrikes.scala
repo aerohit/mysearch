@@ -4,35 +4,50 @@ import games.InvalidMoveException._
 
 case class FifteenStrikes(player1: Player, player2: Player) {
   if (player1.id == player2.id)
-    throw PlayerIdsNotDistinct(player1.id, player2.id)
+    throw PlayersNotDistinct(player1.id, player2.id)
 
-  var sticks: Int = 15
-  var state: GameState = NEW
+  // Three mutable variables :(. How to maintain state and still be immutable?
+  private var remainingSticks: Int = 15
+  private var currentState: GameState = NEW
+  private var lastMoveBy: Option[Player] = None
 
-  private var lastPlayer: Option[Player] = None
+  def getSticks = remainingSticks
+
+  def getState = currentState
 
   def strike(player: Player, howMany: Int): Unit = {
-    if (howMany < 1 || howMany > 3)
-      throw InvalidNumberOfStrikes(howMany)
-
-    lastPlayer.map { lp =>
-      if (lp.id == player.id)
-        throw PlayerMovedConsecutively(player)
-    }
-
-    if (sticks - howMany < 1)
-      throw NotEnoughSticks(sticks)
-
-    lastPlayer = Some(player)
-    sticks -= howMany
-    state = if (sticks > 1) INPROGRESS else FINISHED
+    validateStrikesWithinAllowed(howMany)
+    validateNotConsecutiveMovesBy(player)
+    validateEnoughSticksRemaining(howMany)
+    updateGame(player, howMany)
   }
 
-  def winner(): Player =
-    if (state == FINISHED)
-      lastPlayer.get
-    else
-      throw NoWinnerYet
+  def winner(): Player = {
+    if (currentState != FINISHED) throw NoWinnerYet
+    lastMoveBy.get
+  }
+
+  private def updateGame(player: Player, howMany: Int) {
+    lastMoveBy = Some(player)
+    remainingSticks -= howMany
+    currentState = if (remainingSticks > 1) INPROGRESS else FINISHED
+  }
+
+  private def validateEnoughSticksRemaining(howMany: Int) {
+    if (remainingSticks - howMany < 1)
+      throw NotEnoughSticks(remainingSticks)
+  }
+
+  private def validateNotConsecutiveMovesBy(player: Player) {
+    // This is ugly.
+    if (lastMoveBy == Some(player))
+      throw PlayerMovedConsecutively(player)
+  }
+
+  private def validateStrikesWithinAllowed(howMany: Int) {
+    if (howMany < 1 || howMany > 3)
+      throw InvalidNumberOfStrikes(howMany)
+  }
 }
 
 case class Player(id: Int)
@@ -41,7 +56,7 @@ trait InvalidMoveException extends Exception
 
 object InvalidMoveException {
 
-  case class PlayerIdsNotDistinct(id1: Int, id2: Int) extends InvalidMoveException
+  case class PlayersNotDistinct(id1: Int, id2: Int) extends InvalidMoveException
 
   case class InvalidNumberOfStrikes(howMany: Int) extends InvalidMoveException
 
