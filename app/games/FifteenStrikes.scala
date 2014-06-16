@@ -2,7 +2,7 @@ package games
 
 import games.InvalidMoveException._
 
-case class FifteenStrikes(player1: Player, player2: Player) {
+case class FifteenStrikes(id: Int, player1: Player, player2: Player) {
   if (player1.id == player2.id)
     throw PlayersNotDistinct(player1.id, player2.id)
 
@@ -47,6 +47,12 @@ case class FifteenStrikes(player1: Player, player2: Player) {
   private def validateStrikesWithinAllowed(howMany: Int) {
     if (howMany < 1 || howMany > 3)
       throw InvalidNumberOfStrikes(howMany)
+  }
+}
+
+object FifteenStrikes {
+  def apply(player1: Player, player2: Player): FifteenStrikes = {
+    FifteenStrikes(0, player1, player2)
   }
 }
 
