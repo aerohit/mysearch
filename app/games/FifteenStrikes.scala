@@ -2,20 +2,11 @@ package games
 
 import games.InvalidMoveException._
 
-case class FifteenStrikes(id: Int, player1: Player, player2: Player) {
+case class FifteenStrikes(id: Int, player1: Player, player2: Player, sticks: Int, lastMoveBy: Option[Player], state: GameState) {
   if (player1.id == player2.id)
     throw PlayersNotDistinct(player1.id, player2.id)
 
-  // Three mutable variables :(. How to maintain state and still be immutable?
-  private var remainingSticks: Int = 15
-  private var currentState: GameState = NEW
-  private var lastMoveBy: Option[Player] = None
-
-  def getSticks = remainingSticks
-
-  def getState = currentState
-
-  def strike(player: Player, howMany: Int): Unit = {
+  def strike(player: Player, howMany: Int): FifteenStrikes = {
     validateStrikesWithinAllowed(howMany)
     validateNotConsecutiveMovesBy(player)
     validateEnoughSticksRemaining(howMany)
@@ -23,19 +14,19 @@ case class FifteenStrikes(id: Int, player1: Player, player2: Player) {
   }
 
   def winner(): Player = {
-    if (currentState != FINISHED) throw NoWinnerYet
+    if (state != FINISHED) throw NoWinnerYet()
     lastMoveBy.get
   }
 
-  private def updateGame(player: Player, howMany: Int) {
-    lastMoveBy = Some(player)
-    remainingSticks -= howMany
-    currentState = if (remainingSticks > 1) INPROGRESS else FINISHED
+  private def updateGame(player: Player, howMany: Int): FifteenStrikes = {
+    val updatedSticks: Int = sticks - howMany
+    val newState = if (updatedSticks > 1) INPROGRESS else FINISHED
+    this.copy(sticks = updatedSticks, lastMoveBy = Some(player), state = newState)
   }
 
   private def validateEnoughSticksRemaining(howMany: Int) {
-    if (remainingSticks - howMany < 1)
-      throw NotEnoughSticks(remainingSticks)
+    if (sticks - howMany < 1)
+      throw NotEnoughSticks(sticks)
   }
 
   private def validateNotConsecutiveMovesBy(player: Player) {
@@ -52,7 +43,11 @@ case class FifteenStrikes(id: Int, player1: Player, player2: Player) {
 
 object FifteenStrikes {
   def apply(player1: Player, player2: Player): FifteenStrikes = {
-    FifteenStrikes(0, player1, player2)
+    apply(0, player1, player2)
+  }
+
+  def apply(id: Int, player1: Player, player2: Player): FifteenStrikes = {
+    FifteenStrikes(id, player1, player2, 15, None, NEW)
   }
 }
 
@@ -70,7 +65,7 @@ object InvalidMoveException {
 
   case class NotEnoughSticks(remaining: Int) extends InvalidMoveException
 
-  case object NoWinnerYet extends InvalidMoveException
+  case class NoWinnerYet() extends InvalidMoveException
 
 }
 

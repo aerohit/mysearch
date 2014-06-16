@@ -18,7 +18,7 @@ class FifteenStrikesTest extends Specification {
 
     "have 15 sticks" in {
       val game = FifteenStrikes(Player(15), Player(17))
-      game.getSticks mustEqual 15
+      game.sticks mustEqual 15
     }
   }
 
@@ -26,20 +26,18 @@ class FifteenStrikesTest extends Specification {
     "not be allowed to strike less than 1 stick" in {
       val game = FifteenStrikes(p1, p2)
       game.strike(p1, 0) must throwA(InvalidNumberOfStrikes(0))
-      game.getSticks mustEqual 15
     }
 
     "not be allowed to strike more than 3 sticks" in {
       val game = FifteenStrikes(p1, p2)
       game.strike(p1, 4) must throwA(InvalidNumberOfStrikes(4))
-      game.getSticks mustEqual 15
     }
 
     "be able to strike 1, 2 or 3 stick" in {
       (1 to 3).forall { howMany =>
         val g = FifteenStrikes(p1, p2)
-        g.strike(p1, howMany)
-        g.getSticks == (15 - howMany)
+        val updatedGame = g.strike(p1, howMany)
+        updatedGame.sticks == (15 - howMany)
       } must beTrue
     }
   }
@@ -48,67 +46,65 @@ class FifteenStrikesTest extends Specification {
     "not be allowed to make consecutive moves" in {
       val game = FifteenStrikes(p1, p2)
 
-      game.strike(p1, 1)
-      game.strike(p1, 1) must throwA(PlayerMovedConsecutively(p1))
-      game.getSticks mustEqual 14
+      val updatedGame1 = game.strike(p1, 1)
+      updatedGame1.strike(p1, 1) must throwA(PlayerMovedConsecutively(p1))
 
-      game.strike(p2, 1)
-      game.strike(p2, 1) must throwA(PlayerMovedConsecutively(p2))
-      game.getSticks mustEqual 13
+      val updatedGame2 = updatedGame1.strike(p2, 1)
+      updatedGame2.strike(p2, 1) must throwA(PlayerMovedConsecutively(p2))
     }
 
     "not be allowed to remove all the sticks" in {
       val game = FifteenStrikes(p1, p2)
-      game.strike(p1, 3)
-      game.strike(p2, 2)
-      game.strike(p1, 3)
-      game.strike(p2, 2)
-      game.strike(p1, 3)
-      game.strike(p2, 2) must throwA(NotEnoughSticks(2))
+      val updatedGame = game.strike(p1, 3)
+        .strike(p2, 2)
+        .strike(p1, 3)
+        .strike(p2, 2)
+        .strike(p1, 3)
+      updatedGame.strike(p2, 2) must throwA(NotEnoughSticks(2))
     }
   }
 
   "The state of the game" should {
     s"be $NEW when started" in {
       val game = FifteenStrikes(p1, p2)
-      game.getState mustEqual NEW
+      game.state mustEqual NEW
     }
 
     s"be $INPROGRESS when a player has struck" in {
       val game = FifteenStrikes(p1, p2)
-      game.strike(p1, 3)
-      game.getState mustEqual INPROGRESS
+      val updatedGame = game.strike(p1, 3)
+      updatedGame.state mustEqual INPROGRESS
     }
 
     s"be $FINISHED when the game closes" in {
       val game = FifteenStrikes(p1, p2)
-      game.strike(p1, 3)
-      game.strike(p2, 2)
-      game.strike(p1, 3)
-      game.strike(p2, 2)
-      game.strike(p1, 3)
-      game.strike(p2, 1)
-      game.getState mustEqual FINISHED
+      val updatedGame = game.strike(p1, 3)
+        .strike(p2, 2)
+        .strike(p1, 3)
+        .strike(p2, 2)
+        .strike(p1, 3)
+        .strike(p2, 1)
+      updatedGame.state mustEqual FINISHED
     }
   }
 
   "The winner of the game" should {
     "be undecided if the game hasn't finished" in {
       val game = FifteenStrikes(p1, p2)
-      game.winner must throwA(NoWinnerYet)
+      game.winner must throwA(NoWinnerYet())
       game.strike(p1, 3)
-      game.winner must throwA(NoWinnerYet)
+      game.winner must throwA(NoWinnerYet())
     }
 
     "be the last player to leave 1 stick on the table" in {
       val game = FifteenStrikes(p1, p2)
-      game.strike(p1, 3)
-      game.strike(p2, 2)
-      game.strike(p1, 3)
-      game.strike(p2, 2)
-      game.strike(p1, 3)
-      game.strike(p2, 1)
-      game.winner() mustEqual p2
+      val updatedGame = game.strike(p1, 3)
+        .strike(p2, 2)
+        .strike(p1, 3)
+        .strike(p2, 2)
+        .strike(p1, 3)
+        .strike(p2, 1)
+      updatedGame.winner() mustEqual p2
     }
   }
 
