@@ -17,4 +17,8 @@ object Application extends Controller {
   def fortune = LoggingAction {
     Ok(FortuneTeller.fortune())
   }
+
+  def test = LoggingAction {
+    Ok(views.html.test())
+  }
 }
