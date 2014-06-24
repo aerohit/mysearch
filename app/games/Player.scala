@@ -1,8 +1,7 @@
 package games
 
-/**
- * Created by aerohit on 6/24/14.
- */
-class Player {
+import play.api.libs.iteratee.Concurrent.Channel
+import play.api.libs.json.JsValue
 
-}
+case class Player(id: Int, channel: Channel[JsValue])
+

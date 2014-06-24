@@ -51,8 +51,6 @@ object FifteenStrikes {
   }
 }
 
-case class Player(id: Int)
-
 trait InvalidMoveException extends Exception
 
 object InvalidMoveException {
