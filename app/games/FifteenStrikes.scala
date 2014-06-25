@@ -51,18 +51,24 @@ object FifteenStrikes {
   }
 }
 
+@deprecated("Get rid of the usage of this exception", "")
 trait InvalidMoveException extends Exception
 
 object InvalidMoveException {
 
+  @deprecated("Get rid of the usage of this exception", "")
   case class PlayersNotDistinct(id1: Int, id2: Int) extends InvalidMoveException
 
+  @deprecated("Get rid of the usage of this exception", "")
   case class InvalidNumberOfStrikes(howMany: Int) extends InvalidMoveException
 
+  @deprecated("Get rid of the usage of this exception", "")
   case class PlayerMovedConsecutively(player: Player) extends InvalidMoveException
 
+  @deprecated("Get rid of the usage of this exception", "")
   case class NotEnoughSticks(remaining: Int) extends InvalidMoveException
 
+  @deprecated("Get rid of the usage of this exception", "")
   case class NoWinnerYet() extends InvalidMoveException
 
 }
