@@ -2,8 +2,8 @@ package utils.actions
 
 import play.api.Logger
 import play.api.mvc.{ActionBuilder, Request, Result}
-import scala.concurrent.ExecutionContext.Implicits.global
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object LoggingAction extends ActionBuilder[Request] {

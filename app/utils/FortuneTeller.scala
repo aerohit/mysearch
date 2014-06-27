@@ -2,7 +2,7 @@ package utils
 
 object FortuneTeller {
 
-  import sys.process._
+  import scala.sys.process._
 
   def fortune(): String = "fortune".!!
 }

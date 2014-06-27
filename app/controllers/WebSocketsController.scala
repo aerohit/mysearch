@@ -6,9 +6,9 @@ import play.api.libs.iteratee.{Concurrent, Iteratee}
 import play.api.libs.json.JsValue
 import play.api.mvc.{Controller, WebSocket}
 import utils.FortuneTeller
-import scala.concurrent.ExecutionContext.Implicits.global
 
 import scala.collection.mutable.ArrayBuffer
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object WebSocketsController extends Controller {
   // Why does it not work without using new?
