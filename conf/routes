@@ -7,6 +7,9 @@ GET        /                    controllers.Application.index
 GET        /fortune             controllers.Application.fortune
 GET        /jsontestdata        controllers.Application.jsontestdata
 GET        /test                controllers.Application.test
+GET        /chunkeddata         controllers.Application.chunkeddata
+GET        /comet               controllers.Application.comet
+GET        /sinatracomet        controllers.Application.sinatracomet
 GET        /fortunesocket       controllers.WebSocketsController.fortunesocket
 GET        /broadcastsocket     controllers.WebSocketsController.broadcastsocket
 GET        /broadcaststrings    controllers.WebSocketsController.broadcaststrings
